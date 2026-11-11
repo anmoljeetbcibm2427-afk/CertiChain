@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CertiChain | Certificate Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand"><span class="brand-icon">◆</span> CertiChain</div>
+        <span class="top-note">Blockchain Certificate Verification</span>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div>
+                <p class="eyebrow">SECURE • TRANSPARENT • VERIFIABLE</p>
+                <h1>Certificate Verification System</h1>
+                <p class="hero-copy">Issue digital certificates and verify their authenticity using a simple Python blockchain.</p>
+            </div>
+            <div class="hero-symbol">🔐</div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <section class="stats">
+            <div class="stat-card">
+                <span class="stat-label">Certificates issued</span>
+                <strong>{{ total_certificates }}</strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Blockchain status</span>
+                {% if chain_valid %}
+                    <strong class="valid-text">● Valid</strong>
+                {% else %}
+                    <strong class="invalid-text">● Invalid</strong>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="two-column">
+            <div class="panel">
+                <div class="panel-heading">
+                    <span class="step">01</span>
+                    <div>
+                        <h2>Issue a certificate</h2>
+                        <p>Add a certificate to the blockchain.</p>
+                    </div>
+                </div>
+                <form action="{{ url_for('issue_certificate') }}" method="POST">
+                    <label for="student_name">Student name</label>
+                    <input id="student_name" name="student_name" placeholder="e.g. Amandeep Kaur" required>
+
+                    <label for="certificate_id">Certificate ID</label>
+                    <input id="certificate_id" name="certificate_id" placeholder="e.g. CERT-1001" required>
+
+                    <label for="course">Course name</label>
+                    <input id="course" name="course" placeholder="e.g. Python Programming" required>
+
+                    <button type="submit">＋ Issue certificate</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <span class="step purple">02</span>
+                    <div>
+                        <h2>Verify a certificate</h2>
+                        <p>Check the details against the blockchain.</p>
+                    </div>
+                </div>
+                <form action="{{ url_for('verify_certificate') }}" method="POST">
+                    <label for="verify_id">Certificate ID</label>
+                    <input id="verify_id" name="certificate_id" placeholder="e.g. CERT-1001" required>
+
+                    <label for="verify_student_name">Student name</label>
+                    <input id="verify_student_name" name="verify_student_name" placeholder="Enter registered name" required>
+
+                    <label for="verify_course">Course name</label>
+                    <input id="verify_course" name="verify_course" placeholder="Enter registered course" required>
+
+                    <button class="purple-button" type="submit">✓ Verify certificate</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="panel blockchain-panel">
+            <div class="panel-heading history-heading">
+                <div>
+                    <h2>Blockchain records</h2>
+                    <p>Each block is connected to the hash of the previous block.</p>
+                </div>
+                <a class="outline-button" href="{{ url_for('check_chain') }}">Check blockchain</a>
+            </div>
+
+            {% if blocks %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Block</th>
+                                <th>Certificate ID</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Hash (short)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for block in blocks %}
+                            <tr>
+                                <td>#{{ block.index }}</td>
+                                <td>{{ block.data.certificate_id }}</td>
+                                <td>{{ block.data.student_name }}</td>
+                                <td>{{ block.data.course }}</td>
+                                <td class="hash">{{ block.hash[:12] }}...</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">No certificates yet. Issue your first certificate above.</div>
+            {% endif %}
+        </section>
+
+        <p class="footer-note">Mini project demonstration • Python + Flask + SHA-256</p>
+    </main>
+</body>
+</html>
